@@ -15,7 +15,10 @@ library(maps)
 library(mapproj) 
 library(gganimate)
 library(usmap)
+library(wesanderson)
 ```
+ 
+ 
  
 # Map overall trend of healthy and unhealthy food access at county level 
 
@@ -54,12 +57,21 @@ clean_data_2011 %>%
   arrange(desc(healthy_per10000))
 ```
 
-
 ## Join with the coordinate data 
 
 ```{r}
 left_join(us_counties, clean_data_2011, by = "countystate") -> clean_data_2011_latlong
 ```
+
+## Repeat for 2016
+
+```{r}
+clean_data_2016 <- clean_data %>% 
+  filter(!is.na(year)) %>% 
+  filter(year == 2016)
+left_join(us_counties, clean_data_2016, by = "countystate") -> clean_data_2016_latlong
+```
+
 
 ## Remove outlier, plot unhealthy sources per 10,000 people 
 
@@ -72,8 +84,31 @@ clean_data_2011_latlong %>%
                group = group, fill = unhealthy_per10000)) +
     geom_polygon(color = "gray90", size = 0.1) +
     coord_map(projection = "albers", lat0 = 39, lat1 = 45) + 
-  scale_fill_continuous(low = "white", high = "blue")
+  scale_fill_continuous(low = "honeydew", high = "firebrick") +
+  theme_bw() +
+  labs(title = "Unhealthy food sources per capita are highest in the middle of the country, 2011",
+       fill = "Unhealthy food sources \n per 10,000 people",
+       x = "", 
+       y = "")
 ```
+
+```{r 07-maps-8, fig.cap='Mapping the results', out.width="100%", fig.width=6, fig.height=5}
+clean_data_2016_latlong %>%
+  filter(countystate != "San Juan Colorado") %>% 
+  filter(state != "HI") %>% 
+  filter(state != "AK") %>% 
+    ggplot(aes(x = long, y = lat, 
+               group = group, fill = unhealthy_per10000)) +
+    geom_polygon(color = "gray90", size = 0.1) +
+    coord_map(projection = "albers", lat0 = 39, lat1 = 45) + 
+  scale_fill_continuous(low = "thistle1", high = "darkmagenta") +
+  theme_bw() +
+  labs(title = "Unhealthy food sources per capita are highest in the middle of the country, 2016",
+       fill = "Unhealthy food sources \n per 10,000 people",
+       x = "", 
+       y = "")
+```
+
 
 ## Remove outlier, plot healthy sources per 10,000 people 
 
@@ -85,6 +120,30 @@ clean_data_2011_latlong %>%
                group = group, fill = healthy_per10000)) +
     geom_polygon(color = "gray90", size = 0.1) +
     coord_map(projection = "albers", lat0 = 39, lat1 = 45) + 
-  scale_fill_continuous(low = "white", high = "green")
+  scale_fill_continuous(low = "honeydew", high = "darkslategrey") +
+  theme_bw() +
+  labs(title = "Healthy food sources per capita are highest in the middle of the country, 2011",
+       fill = "Healthy food sources \n per 10,000 people",
+       x = "", 
+       y = "")
 ```
+
+```{r 07-maps-8, fig.cap='Mapping the results', out.width="100%", fig.width=6, fig.height=5}
+clean_data_2016_latlong %>%
+  filter(state != "HI") %>% 
+  filter(state != "AK") %>% 
+    ggplot(aes(x = long, y = lat, 
+               group = group, fill = healthy_per10000)) +
+    geom_polygon(color = "gray90", size = 0.1) +
+    coord_map(projection = "albers", lat0 = 39, lat1 = 45) + 
+  scale_fill_continuous(low = "lightblue2", high = "midnightblue") +
+  theme_bw() +
+  labs(title = "Healthy food sources per capita are highest in the middle of the country, 2016",
+       fill = "Healthy food sources \n per 10,000 people",
+       x = "", 
+       y = "")
+```
+
+
+# Graph relationship between race and food access
 
