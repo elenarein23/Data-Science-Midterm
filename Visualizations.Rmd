@@ -9,22 +9,82 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r}
+library(tidyverse)
+library(maps)  
+library(mapproj) 
+library(gganimate)
+library(usmap)
+```
+ 
+# Map overall trend of healthy and unhealthy food access at county level 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+clean_data <- read.csv("~/Desktop/Data Science/Midterm Project/full_data_2011_2016.csv")
+clean_data %>% 
+  mutate(countystate = paste(county, state_full)) -> clean_data
+```
+ 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Bring in coordinate data 
 
-```{r cars}
-summary(cars)
+```{r}
+us_counties <- map_data("county")
+us_counties <- us_counties %>% 
+  mutate(state_full = str_to_title(region)) %>% 
+  mutate(county = str_to_title(subregion)) %>% 
+  mutate(countystate = paste(county, state_full))
 ```
 
-## Including Plots
+## Subset to 2011 only 
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+clean_data_2011 <- clean_data %>% 
+  filter(!is.na(year)) %>% 
+  filter(year == 2011)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+clean_data_2011 %>% 
+  arrange(desc(unhealthy_per10000))
+```
+
+```{r}
+clean_data_2011 %>% 
+  arrange(desc(healthy_per10000))
+```
+
+
+## Join with the coordinate data 
+
+```{r}
+left_join(us_counties, clean_data_2011, by = "countystate") -> clean_data_2011_latlong
+```
+
+## Remove outlier, plot unhealthy sources per 10,000 people 
+
+```{r 07-maps-8, fig.cap='Mapping the results', out.width="100%", fig.width=6, fig.height=5}
+clean_data_2011_latlong %>%
+  filter(countystate != "San Juan Colorado") %>% 
+  filter(state != "HI") %>% 
+  filter(state != "AK") %>% 
+    ggplot(aes(x = long, y = lat, 
+               group = group, fill = unhealthy_per10000)) +
+    geom_polygon(color = "gray90", size = 0.1) +
+    coord_map(projection = "albers", lat0 = 39, lat1 = 45) + 
+  scale_fill_continuous(low = "white", high = "blue")
+```
+
+## Remove outlier, plot healthy sources per 10,000 people 
+
+```{r 07-maps-8, fig.cap='Mapping the results', out.width="100%", fig.width=6, fig.height=5}
+clean_data_2011_latlong %>%
+  filter(state != "HI") %>% 
+  filter(state != "AK") %>% 
+    ggplot(aes(x = long, y = lat, 
+               group = group, fill = healthy_per10000)) +
+    geom_polygon(color = "gray90", size = 0.1) +
+    coord_map(projection = "albers", lat0 = 39, lat1 = 45) + 
+  scale_fill_continuous(low = "white", high = "green")
+```
+
