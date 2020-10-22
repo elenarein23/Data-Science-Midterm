@@ -1,0 +1,282 @@
+---
+title: "Cleaning file"
+author: "Elena Rein"
+date: "10/21/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Race Data 
+
+##Start with 2011
+
+```{r}
+library(tidyverse)
+library(readxl)
+race_2011 <- read_csv("~/Desktop/Data Science/Midterm Project/race data 2011 & 2016/race_2011.csv")
+```
+
+## Create new dataframe, select relevant columns, create year, create fips 
+
+```{r}
+race_2011_clean <- race_2011 %>% 
+  select(GISJOIN, STATE, STATEA, COUNTY, COUNTYA, UEYE001, UEYE003, UEYE004, UEYE005, UEYE006, UEYE007, UEYE008, UEYE009, UEYE012) %>% 
+  mutate(year = 2011) %>% 
+  unite(fips, c("STATEA","COUNTYA"), sep = "") %>% 
+  rename(state = STATE) %>% 
+  rename(county = COUNTY)
+```
+
+## Create percent race columns 
+
+```{r}
+race_2011_clean <- race_2011_clean %>% 
+  mutate(perc_white = UEYE003/UEYE001) %>% 
+  mutate(perc_black = UEYE004/UEYE001) %>% 
+  mutate(perc_asian = UEYE006/UEYE001) %>% 
+  mutate(perc_nhaian = (UEYE005 + UEYE007)/UEYE001) %>% 
+  mutate(perc_other = (UEYE008+UEYE009)/UEYE001) %>% 
+  mutate(perc_latino = UEYE012/UEYE001) %>% 
+  mutate(perc_check = perc_white + perc_black + perc_asian + perc_nhaian + perc_latino + perc_other)
+```
+
+## Reorder and select columns, save new vile 
+
+```{r}
+race_2011_clean_short <- race_2011_clean[c("year", "fips", "county", "state", "perc_white", "perc_black", "perc_asian", "perc_latino", "perc_nhaian", "perc_other", "perc_check")] %>% 
+  filter(state != "Puerto Rico")
+write.csv(race_2011_clean_short,'race_2011_ready.csv')
+```
+
+
+## Whole thing for 2016
+
+```{r}
+library(tidyverse)
+race_2016 <- read_csv("~/Desktop/Data Science/Midterm Project/race data 2011 & 2016/race_2016.csv")
+```
+
+## Create new dataframe, select relevant columns, create year, create fips 
+
+```{r}
+race_2016_clean <- race_2016 %>% 
+  select(GISJOIN, STATE, STATEA, COUNTY, COUNTYA, AJWVE001, AJWVE003, AJWVE004, AJWVE005, AJWVE006, AJWVE007, AJWVE008, AJWVE009, AJWVE012) %>% 
+  mutate(year = 2016) %>% 
+  unite(fips, c("STATEA","COUNTYA"), sep = "") %>% 
+  rename(state = STATE) %>% 
+  rename(county = COUNTY)
+```
+
+## Create percent race columns 
+
+```{r}
+race_2016_clean <- race_2016_clean %>% 
+  mutate(perc_white = AJWVE003/AJWVE001) %>% 
+  mutate(perc_black = AJWVE004/AJWVE001) %>% 
+  mutate(perc_asian = AJWVE006/AJWVE001) %>% 
+  mutate(perc_nhaian = (AJWVE005 + AJWVE007)/AJWVE001) %>% 
+  mutate(perc_other = (AJWVE008 + AJWVE009)/AJWVE001) %>% 
+  mutate(perc_latino = AJWVE012/AJWVE001) %>% 
+  mutate(perc_check = perc_white + perc_black + perc_asian + perc_nhaian + perc_latino + perc_other)
+```
+
+## Reorder and select columns, save new vile 
+
+```{r}
+race_2016_clean_short <- race_2016_clean[c("year", "fips", "county", "state", "perc_white", "perc_black", "perc_asian", "perc_latino", "perc_nhaian", "perc_other", "perc_check")] %>% 
+  filter(state != "Puerto Rico")
+write.csv(race_2016_clean_short,'race_2016_ready.csv')
+```
+
+
+# Poverty Data
+
+##Start with 2011
+
+```{r}
+poverty_data_2011 <- read_csv("~/Desktop/Data Science/Midterm Project/poverty status/poverty data 2011.csv")
+```
+
+## Create new dataframe, select relevant columns, create year, create fips 
+
+```{r}
+poverty_2011_clean <- poverty_data_2011 %>% 
+  select(GISJOIN, STATE, STATEA, COUNTY, COUNTYA, UW6E001, UW6E002) %>% 
+  mutate(year = 2011) %>% 
+  unite(fips, c("STATEA","COUNTYA"), sep = "") %>% 
+  rename(state = STATE) %>% 
+  rename(county = COUNTY)
+```
+
+## Create percent poverty column
+
+```{r}
+poverty_2011_clean <- poverty_2011_clean %>% 
+  mutate(perc_poverty = UW6E002/UW6E001)
+```
+
+## Reorder and select columns, save new vile 
+
+```{r}
+poverty_2011_clean_short <- poverty_2011_clean[c("year", "fips", "county", "state", "perc_poverty")] %>% 
+  filter(state != "Puerto Rico")
+write.csv(poverty_2011_clean_short,'poverty_2011_ready.csv')
+```
+
+
+##For 2011
+
+```{r}
+poverty_data_2016 <- read_csv("~/Desktop/Data Science/Midterm Project/poverty status/poverty data 2016.csv")
+```
+
+## Create new dataframe, select relevant columns, create year, create fips 
+
+```{r}
+poverty_2016_clean <- poverty_data_2016 %>% 
+  select(GISJOIN, STATE, STATEA, COUNTY, COUNTYA, AKEYE001, AKEYE002) %>% 
+  mutate(year = 2016) %>% 
+  unite(fips, c("STATEA","COUNTYA"), sep = "") %>% 
+  rename(state = STATE) %>% 
+  rename(county = COUNTY)
+```
+
+## Create percent poverty column
+
+```{r}
+poverty_2016_clean <- poverty_2016_clean %>% 
+  mutate(perc_poverty = AKEYE002/AKEYE001)
+```
+
+## Reorder and select columns, save new vile 
+
+```{r}
+poverty_2016_clean_short <- poverty_2016_clean[c("year", "fips", "county", "state", "perc_poverty")] %>% 
+  filter(state != "Puerto Rico")
+write.csv(poverty_2016_clean_short,'poverty_2016_ready.csv')
+```
+
+
+# Food environment and population data
+
+## Load datasets 
+
+```{r}
+food_environment_2011 <- read_xlsx("~/Desktop/Data Science/Midterm Project/data to use/food_enviro_2011.xlsx")
+population_2011 <- read_xlsx("~/Desktop/Data Science/Midterm Project/data to use/population_2011.xlsx")
+```
+
+## Merge datasets
+
+```{r}
+left_join(food_environment_2011, population_2011, by = "FIPS") -> food_pop_2011
+```
+
+## Rename vars, drop extra county, add year column 
+
+```{r}
+food_pop_2011_clean <- food_pop_2011 %>% 
+    rename(fips = FIPS, state = State.x, county = County.x, grocery = GROC11, super = SUPERC11, conv = CONVS11, spec = SPECS11, accepts_snap = SNAPS12, fast_food = FFR11, snap_redemp = REDEMP_SNAPS12, snap_enroll_perc = PCT_SNAP12, snap_takeup = SNAP_PART_RATE11, food_insecure = FOODINSEC_12_14, farmer_mkt = FMRKT13, pop = Population_Estimate_2011, state_full = State.y) %>% 
+  select(-County.y) %>% 
+  mutate(year = "2011")
+```
+
+## Save file
+```{r}
+write.csv(food_pop_2011_clean,"foodpop_cleaned_2011.csv")
+```
+ 
+
+# Merge all the data together
+
+```{r}
+food_pop_2011_clean <- food_pop_2011_clean %>% 
+  mutate(year = as.integer(year))
+```
+
+```{r}
+left_join(race_2011_clean_short, poverty_2011_clean_short) -> race_poverty_2011 
+race_poverty_2011 <- race_poverty_2011 %>% 
+  select(-c(perc_check, county))
+left_join(race_poverty_2011, food_pop_2011_clean, by = "fips") -> full_2011
+full_2011 <- full_2011 %>% 
+  select(-c(state.x, year.y, year.x))
+```
+
+```{r}
+income_2011 <- read_csv("~/Desktop/Data Science/Midterm Project/income2011.csv")
+left_join(full_2011, income_2011, by = "fips") -> full_2011
+```
+
+## Rename the columns 
+
+```{r}
+full_2011 <- full_2011 %>% 
+  rename(state = state.y) %>% 
+  rename(state_full = state_full.x)
+```
+
+
+## Reorder the columns 
+
+```{r}
+colnames(full_2011)
+col_order <- c("year","fips", "county", "state", "state_full", "pop",  "perc_white", "perc_black", "perc_asian", "perc_latino",  "perc_nhaian", "perc_other", "perc_poverty", "grocery", "super", "conv", "spec", "accepts_snap", "fast_food", "snap_redemp", "snap_enroll_perc", "snap_takeup", "food_insecure", "farmer_mkt", "income")
+full_2011 <- full_2011[, col_order]
+```
+
+## Save file
+```{r}
+write.csv(full_2011,"full_2011.csv")
+```
+
+## Bring in 2016 data
+```{r}
+full_2016 <- read_csv("~/Desktop/Data Science/Midterm Project/full_2016.csv")
+```
+
+## Append 2011 and 2016
+
+```{r}
+full_data <- bind_rows(full_2011, full_2016)
+```
+
+## Add region
+
+```{r}
+full_data <- full_data %>% 
+  mutate(state_full = case_when(!is.na(state_full) ~ state_full,
+                                is.na(state_full) & state == "AK" ~ "Arkansas",
+                                is.na(state_full) & state == "SD" ~ "South Dakota", 
+                                is.na(state_full) & state == "VA" ~ "Virginia"))
+```
+
+```{r}
+state_full <- c("Connecticut", "Maine", "Massachusetts", "New Hampshire", "Rhode Island", "Vermont", "New Jersey", "New York", "Pennsylvania", "Illinois", "Indiana", "Michigan", "Ohio", "Wisconsin", "Iowa", "Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota", "Delaware", "Florida", "Georgia", "Maryland", "North Carolina", "South Carolina", "Virginia", "District of Columbia", "West Virginia", "Alabama", "Kentucky", "Mississippi", "Tennessee", "Arkansas", "Louisiana", "Oklahoma", "Texas", "Arizona", "Colorado", "Idaho", "Montana", "Nevada", "New Mexico", "Utah", "Wyoming", "Alaska", "California", "Hawaii", "Oregon", "Washington")
+
+full_data <- full_data %>% 
+  mutate(region = ifelse(state_full %in% c("Connecticut", "Maine", "Massachusetts", "New Hampshire", "Rhode Island", "Vermont", "New Jersey", "New York", "Pennsylvania"), "Northeast", ifelse(state_full %in% c("Illinois", "Indiana", "Michigan", "Ohio", "Wisconsin", "Iowa", "Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota"), "Midwest", ifelse(state_full %in% c("Delaware", "Florida", "Georgia", "Maryland", "North Carolina", "South Carolina", "Virginia", "District of Columbia", "West Virginia", "Alabama", "Kentucky", "Mississippi", "Tennessee", "Arkansas", "Louisiana", "Oklahoma", "Texas"), "South", ifelse(state_full %in% c("Arizona", "Colorado", "Idaho", "Montana", "Nevada", "New Mexico", "Utah", "Wyoming", "Alaska", "California", "Hawaii", "Oregon", "Washington"), "West", "other")))))
+```
+
+```{r}
+full_data %>% 
+  count(region)
+```
+
+
+# Make food access indices
+
+```{r}
+full_data <- full_data %>% 
+  mutate(healthy_percap = (grocery + spec + farmer_mkt + super)/pop) %>% 
+  mutate(unhealthy_percap = (conv + fast_food)/pop) %>% 
+  mutate(healthy_per10000 = healthy_percap * 10000) %>% 
+  mutate(unhealthy_per10000 = unhealthy_percap * 10000)
+```
+
+```{r}
+write_csv(full_data, "full_data_2011_2016.csv")
+```
